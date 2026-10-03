@@ -48,7 +48,7 @@ const BRANDS = [
   [/\bARCO\b/, "Arco"],
   [/\bGEICO\b/, "GEICO"],
   [/\bSO ?CAL ?EDISON\b|\bSOUTHERN CALIFORNIA EDISON\b/, "Southern California Edison"],
-  [/\bSOCALGAS\b/, "SoCalGas"],
+  [/\bSOCALGAS\b|^SO CAL GAS\b/, "SoCalGas"],
   [/\bFRONTIER COMMUNI/, "Frontier Communications"],
   [/\bMASS ?MUTUAL\b|\bMASSACHUSETTS MU\b/, "MassMutual"],
   [/\bFRANCHISE TAX B/, "CA Franchise Tax Board"],
@@ -115,6 +115,7 @@ const KEEP_DETAIL = {
   "ACH CONTRIB": "contribution",
   CONTRIB: "contribution",
   TRANSFER: "transfer",
+  "EXP REIMB": "reimbursement",
 };
 
 const SMALL_WORDS = new Set(["and", "of", "the", "at", "for", "to", "in", "on", "a", "an", "or", "by"]);
@@ -265,6 +266,47 @@ function achLine(raw) {
   return { vendorKey, cleanName: name, memo: "", accountRef };
 }
 
+// Bank of America-style lines.
+// ACH: "COMPANY NAME DES:PAYROLL ID:XXXXX123 INDN:LAST,FIRST CO ID:XXXXX456 PPD"
+function desLine(up) {
+  const m = up.match(/^(.+?)\s+DES:\s*(.*?)(?:\s+ID:.*)?$/);
+  if (!m) return null;
+  const originator = collapse(m[1]);
+  const detail = collapse(m[2]);
+  const core = stripNoise(originator) || originator;
+  const keep = KEEP_DETAIL[detail];
+  const name = friendlyName(core);
+  return { vendorKey: collapse(`${core} ${detail}`), cleanName: keep ? `${name} ${keep}` : name, memo: "" };
+}
+
+// 'Zelle payment to Pat Lee for "dinner"; Conf# abc123'
+function bofaZelle(raw) {
+  const m = collapse(raw).match(/^Zelle (?:payment|transfer) (to|from)\s+(.+?)(?:\s+for\s+"(.*)")?\s*;?\s*Conf#.*$/i);
+  if (!m) return null;
+  const direction = m[1].toLowerCase();
+  const person = collapse(m[2]).toUpperCase();
+  return { vendorKey: `ZELLE ${direction.toUpperCase()} ${person}`, cleanName: `Zelle ${direction} ${titleCase(person)}`, memo: m[3] ? collapse(m[3]) : "" };
+}
+
+// "Online Banking transfer to SAV 4821 Confirmation# 1234567890"
+function bofaTransfer(up) {
+  const m = up.match(/^ONLINE BANKING TRANSFER (TO|FROM)\s+(CHK|SAV|MMS|CRD)\s*(\d{3,})?/);
+  if (!m) return null;
+  const kinds = { CHK: "checking", SAV: "savings", MMS: "money market", CRD: "card" };
+  const direction = m[1] === "TO" ? "to" : "from";
+  const last4 = m[3] ? ` ${m[3].slice(-4)}` : "";
+  return { vendorKey: `ONLINE BANKING TRANSFER ${m[1]} ${m[2]}${last4}`, cleanName: `Transfer ${direction} ${kinds[m[2]]}${last4}`, memo: "" };
+}
+
+// "BKOFAMERICA ATM 03/06 #000001265 WITHDRWL MAIN ST ANYTOWN CA"
+function bofaAtm(up) {
+  const m = up.match(/^BKOFAMERICA (?:ATM|MOBILE)\b.*?\b(WITHDRWL|DEPOSIT)\b/);
+  if (!m) return null;
+  return m[1] === "DEPOSIT"
+    ? { vendorKey: "DEPOSIT", cleanName: "Deposit", memo: "" }
+    : { vendorKey: "ATM WITHDRAWAL", cleanName: "ATM withdrawal", memo: "" };
+}
+
 function checkLine(up, checkNumber) {
   const num = checkNumber || (up.match(/^CHECK\s*#?\s*(\d+)/) || [])[1];
   if (/^CHECK\b/.test(up) && num) return { vendorKey: `CHECK #${num}`, cleanName: `Check #${num}`, memo: "" };
@@ -280,7 +322,8 @@ export function cleanDescription(rawDescription, { checkNumber = "", memo = "" }
   const base = { location: "", memo: memo ? collapse(memo) : "" };
   if (!up) return { vendorKey: "UNKNOWN", cleanName: checkNumber ? `Check #${checkNumber}` : "Unnamed transaction", ...base };
 
-  const special = checkLine(up, checkNumber) || zelle(up) || onlineTransfer(up) || instantPayment(up) || cardPaymentLine(up) || mobileDeposit(up);
+  const special = checkLine(up, checkNumber) || zelle(up) || bofaZelle(raw) || onlineTransfer(up) || bofaTransfer(up) || bofaAtm(up)
+    || instantPayment(up) || cardPaymentLine(up) || mobileDeposit(up) || desLine(up);
   if (special) return { ...base, ...special, memo: special.memo || base.memo };
 
   const ach = achLine(raw);
