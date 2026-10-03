@@ -3,7 +3,7 @@
 // "Move to…" menu; every move can be undone. Clicking a box opens it to show what
 // it holds; Edit Categories renames, retypes, reorders, and deletes boxes.
 
-import { h, add, formatDate, plural, byFocusKey } from "./dom.js";
+import { h, add, formatDate, plural, byFocusKey, breakAfterSlash } from "./dom.js";
 import { CATEGORY_TYPES, FREQUENCIES, MONTHS, formatCents, toCents, monthKeyOf, vendorDisplayName, ValidationError } from "./model.js";
 import { buildHintContext, hintFor } from "./hints.js";
 import { renameVendor } from "./importer.js";
@@ -717,7 +717,7 @@ export function createSortingUI({ store, toast, goTo }) {
       onclick: () => toggleOpen(c.id),
       onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleOpen(c.id); } },
     },
-      h("h3", { class: "cat-name" }, c.name),
+      h("h3", { class: "cat-name" }, breakAfterSlash(c.name)),
       c.type !== "spending" ? h("span", { class: "cat-type" }, CATEGORY_TYPES[c.type].label) : null,
       c.frequency !== "regular" ? h("span", { class: "cat-freq" }, `Paid ${FREQUENCIES[c.frequency].label.toLowerCase()}`) : null,
       h("span", { class: "cat-count" }, count ? plural(count, "transaction") : "None yet"));
@@ -873,8 +873,9 @@ export function createSortingUI({ store, toast, goTo }) {
         catCount ? h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: () => store.setSetting("hideSuggestions", true) }, "Hide suggestions") : null),
       h("div", { class: "sug-grid" }, remaining.map((s) => h("div", { class: "sug" },
         h("span", { class: "sug-text" },
-          h("span", { class: "sug-name" }, s.name),
-          s.type !== "spending" ? h("span", { class: "cat-type" }, CATEGORY_TYPES[s.type].label) : null),
+          h("span", { class: "sug-name" }, breakAfterSlash(s.name)),
+          s.type !== "spending" ? h("span", { class: "cat-type" }, CATEGORY_TYPES[s.type].label) : null,
+          s.frequency && s.frequency !== "regular" ? h("span", { class: "cat-type" }, FREQUENCIES[s.frequency].label) : null),
         h("button", { type: "button", class: "btn btn-small", "aria-label": `Add ${s.name}`, onclick: async (e) => {
           if (e.currentTarget.disabled) return;
           e.currentTarget.disabled = true;

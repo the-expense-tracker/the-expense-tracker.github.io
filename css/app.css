@@ -585,7 +585,7 @@ table.preview .num { text-align: right; white-space: nowrap; padding-right: 0; }
   border: 1px dashed var(--line); border-radius: 10px; padding: 7px 8px 7px 12px; color: var(--faint); background: transparent;
 }
 .sug-text { display: grid; gap: 3px; justify-items: start; min-width: 0; }
-.sug-name { font-weight: 500; font-size: 14px; }
+.sug-name { font-weight: 500; font-size: 14px; overflow-wrap: anywhere; }
 .sug .btn { color: var(--olive-deep); }
 
 /* ---------- Moving transactions ---------- */

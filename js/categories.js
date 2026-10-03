@@ -2,16 +2,21 @@
 
 import { makeCategory, ValidationError, CATEGORY_TYPES, monthKeyOf } from "./model.js";
 
-// Shown greyed out on a new grid, each with its own "Add" button.
+// Shown greyed out on a new grid, each with its own "Add" button. A third entry
+// sets how often it comes up (see FREQUENCIES), so the Report averages it right.
 export const STARTER_CATEGORIES = [
-  ["Housing", "spending"], ["Utilities", "spending"], ["Phone and Internet", "spending"],
-  ["Groceries", "spending"], ["Dining Out", "spending"], ["Coffee", "spending"], ["Gas", "spending"],
-  ["Car Maintenance", "spending"], ["Car Insurance", "spending"], ["Home Maintenance", "spending"],
-  ["Household", "spending"], ["Healthcare", "spending"], ["Personal Care", "spending"], ["Kids", "spending"],
-  ["Childcare", "spending"], ["Pets", "spending"], ["Subscriptions", "spending"], ["Shopping", "spending"],
-  ["Gifts", "spending"], ["Giving", "giving"], ["Travel", "spending"], ["Entertainment", "spending"],
-  ["Taxes", "spending"], ["Paycheck", "income"], ["Retirement", "saving"], ["Card Payments and Transfers", "excluded"],
-].map(([name, type]) => ({ name, type }));
+  ["Mortgage or Rent", "spending"], ["Electricity", "spending"], ["Water", "spending"],
+  ["Natural Gas", "spending"], ["Trash", "spending"], ["Pest Control", "spending"], ["Internet", "spending"],
+  ["Phone", "spending"], ["Lawn Care", "spending"], ["Cable or Streaming", "spending"],
+  ["Groceries", "spending"], ["Eating Out", "spending"], ["Car Payment", "spending"], ["Gas", "spending"],
+  ["Car Maintenance", "spending"], ["Car Insurance", "spending"], ["Vehicle Registration", "spending", "yearly"],
+  ["Home Maintenance", "spending"], ["Home Improvement", "spending"], ["Household", "spending"], ["Healthcare", "spending"],
+  ["Personal Care", "spending"], ["Kids", "spending"], ["Childcare", "spending"], ["Pets", "spending"],
+  ["Subscriptions", "spending"], ["Clothing", "spending"], ["Gifts", "spending"],
+  ["Tithe", "giving"], ["Extra Generosity", "giving"], ["Travel", "spending"],
+  ["Leisure or Entertainment", "spending"], ["Taxes", "spending"], ["Paycheck", "income"],
+  ["Retirement", "saving"], ["Card Payments and Transfers", "excluded"],
+].map(([name, type, frequency = "regular"]) => ({ name, type, frequency }));
 
 export function sortedCategories(store) {
   return store.list("categories").sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
@@ -22,14 +27,14 @@ export function nameTaken(store, name, exceptId = null) {
   return store.list("categories").some((c) => c.id !== exceptId && c.name.trim().toLowerCase() === n);
 }
 
-export async function createCategory(store, { name, type = "spending" }) {
+export async function createCategory(store, { name, type = "spending", frequency = "regular" }) {
   const clean = String(name ?? "").replace(/\s+/g, " ").trim();
   if (!clean) throw new ValidationError("Give the category a name.");
   if (clean.length > 40) throw new ValidationError("Keep category names to 40 characters or fewer.");
   if (!(type in CATEGORY_TYPES)) throw new ValidationError("Choose a type for the category.");
   if (nameTaken(store, clean)) throw new ValidationError(`You already have a category named ${clean}.`);
   const order = Math.max(-1, ...store.list("categories").map((c) => c.order)) + 1;
-  const cat = makeCategory({ name: clean, type, order });
+  const cat = makeCategory({ name: clean, type, frequency, order });
   await store.put("categories", cat);
   return cat;
 }

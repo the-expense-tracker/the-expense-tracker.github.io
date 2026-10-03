@@ -54,3 +54,7 @@ export function plural(n, one, many = `${one}s`) {
 }
 
 export const KIND_LABELS = { checking: "Checking", savings: "Savings", card: "Credit card", unknown: "Account" };
+
+// A name like "Home Improvement/Décor" can wrap after the slash instead of being cut off.
+export const breakAfterSlash = (text) =>
+  String(text).split("/").flatMap((part, i, all) => (i < all.length - 1 ? [`${part}/`, h("wbr")] : [part]));
