@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Network lock: this page may load only its own files and may not contact any server. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; require-trusted-types-for 'script'; trusted-types exceljs xml-reader">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Expense Tracker</title>
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<header class="app-header">
+  <h1 class="wordmark">
+    <svg class="logo" width="32" height="32" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="12" y="16" width="76" height="70" rx="9" fill="none" stroke="#FFFDF7" stroke-width="5"/><path d="M12 30 H88" stroke="#FFFDF7" stroke-width="5"/><g stroke="#FFFDF7" stroke-width="5" stroke-linecap="round"><path d="M32 9 V21"/><path d="M68 9 V21"/></g><rect x="22" y="38" width="12" height="12" rx="2.5" fill="#CFAD78"/><rect x="37" y="38" width="12" height="12" rx="2.5" fill="#B88435"/><rect x="52" y="38" width="12" height="12" rx="2.5" fill="#CFAD78"/><rect x="67" y="38" width="12" height="12" rx="2.5" fill="#C26A35"/><rect x="22" y="53" width="12" height="12" rx="2.5" fill="#B88435"/><rect x="37" y="53" width="12" height="12" rx="2.5" fill="#B88435"/><rect x="52" y="53" width="12" height="12" rx="2.5" fill="#C26A35"/><rect x="67" y="53" width="12" height="12" rx="2.5" fill="#CFAD78"/><rect x="22" y="68" width="12" height="12" rx="2.5" fill="#C26A35"/><rect x="37" y="68" width="12" height="12" rx="2.5" fill="#FFFDF7" fill-opacity="0.18"/><rect x="52" y="68" width="12" height="12" rx="2.5" fill="#FFFDF7" fill-opacity="0.18"/><rect x="67" y="68" width="12" height="12" rx="2.5" fill="#FFFDF7" fill-opacity="0.18"/></svg>
+    <span class="wm-text">The Expense <span>Tracker</span></span>
+  </h1>
+  <p class="privacy-tag">100% private – Data never leaves your browser</p>
+</header>
+<div class="ribbon" aria-hidden="true"><span class="r-ochre"></span><span class="r-rust"></span><span class="r-sand"></span></div>
+
+<div class="toolbar">
+  <nav class="page-switch" aria-label="Pages">
+    <button type="button" class="seg-btn" data-page="transactions" aria-current="page">Transactions</button>
+    <button type="button" class="seg-btn" data-page="report">Report</button>
+  </nav>
+  <div class="status" role="status" aria-live="polite">
+    <span class="status-item"><span class="dot" id="net-dot"></span><span id="net-text">Checking network lock…</span></span>
+    <span class="status-item" id="persist-item" hidden><span class="dot" id="persist-dot"></span><span id="persist-text"></span></span>
+    <span class="status-item"><span class="dot" id="backup-dot"></span><span id="backup-text">Last backup: never</span></span>
+  </div>
+  <div class="menu-wrap">
+    <button type="button" class="btn btn-small menu-btn" id="backup-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="backup-menu">Backup <span aria-hidden="true">▾</span></button>
+    <div class="menu" id="backup-menu" role="menu" hidden>
+      <button type="button" role="menuitem" class="menu-item" id="backup-btn">Save backup<span class="menu-note">An Excel file of your report and transactions that can also restore everything</span></button>
+      <button type="button" role="menuitem" class="menu-item" id="restore-btn">Restore from backup<span class="menu-note">Load a backup file you saved earlier</span></button>
+    </div>
+    <input type="file" id="restore-input" accept=".xlsx,.json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/json" class="visually-hidden" tabindex="-1">
+  </div>
+</div>
+
+<div class="banners" id="banners"></div>
+
+<div id="page-transactions">
+<section class="accounts-bar" aria-labelledby="import-heading" id="import-section">
+  <div class="accounts-head" id="accounts-head" hidden>
+    <h2 id="import-heading" class="zone-title">Accounts</h2>
+    <div class="account-chips" id="account-chips"></div>
+    <button type="button" class="btn btn-quiet btn-small" id="manage-toggle" aria-expanded="false" aria-controls="accounts-manage" hidden>Manage accounts</button>
+  </div>
+  <div class="import-zone" id="import-zone">
+    <svg class="zone-art" width="84" height="64" viewBox="0 0 84 64" aria-hidden="true" focusable="false">
+      <rect x="8" y="10" width="40" height="50" rx="5" fill="#FFFDF7" stroke="#CFAD78" stroke-width="2.5" transform="rotate(-8 28 35)"/>
+      <rect x="26" y="4" width="42" height="54" rx="5" fill="#FFFDF7" stroke="#4A4D37" stroke-width="2.5"/>
+      <rect x="33" y="12" width="20" height="8" rx="2" fill="#4A4D37"/>
+      <text x="43" y="18.6" text-anchor="middle" font-family="Hanken Grotesk, sans-serif" font-size="6.5" font-weight="700" fill="#FFFDF7">CSV</text>
+      <rect x="33" y="26" width="28" height="4" rx="2" fill="#B88435"/>
+      <rect x="33" y="34" width="22" height="4" rx="2" fill="#9E5424"/>
+      <rect x="33" y="42" width="26" height="4" rx="2" fill="#CFAD78"/>
+      <circle cx="66" cy="50" r="11" fill="#4A4D37"/>
+      <path d="M66 44 V56 M61 51 L66 56 L71 51" stroke="#FFFDF7" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="zone-copy">
+      <p class="zone-text">Drag your bank files here, or <button type="button" class="zone-link" id="import-choose">choose files</button></p>
+      <p class="zone-sub">CSV files from any bank or credit card. They're read privately right here in your browser.</p>
+    </div>
+    <input type="file" id="import-input" accept=".csv,.txt,.tsv,text/csv" multiple class="visually-hidden" tabindex="-1">
+  </div>
+  <p class="restore-hint" id="restore-hint" hidden>Coming back with a backup file? <button type="button" class="zone-link" id="restore-hint-btn">Restore it</button></p>
+  <div class="review" id="import-review" hidden></div>
+  <div class="result" id="import-result" hidden></div>
+  <div id="accounts-manage" hidden>
+    <p class="lede small">Rename an account by editing its name. Files are read here in your browser and never uploaded anywhere.</p>
+    <div class="accounts" id="accounts-list"></div>
+  </div>
+  <div class="dup-review" id="dup-review" hidden></div>
+</section>
+
+<main class="workspace" id="workspace">
+  <section class="column inbox-col" aria-labelledby="inbox-heading">
+    <div class="col-head">
+      <div class="col-title">
+        <h2 id="inbox-heading">To Sort</h2>
+        <span class="col-count" id="inbox-count"></span>
+        <div class="year-tabs" id="year-tabs" role="tablist" aria-label="Year"></div>
+      </div>
+      <div class="inbox-tools">
+        <label class="search">
+          <span class="visually-hidden">Search transactions</span>
+          <input type="search" id="inbox-search" placeholder="Search vendor, amount, or note" autocomplete="off">
+        </label>
+        <label class="sort">
+          <span class="visually-hidden">Sort</span>
+          <select id="inbox-sort">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="az">Vendor A–Z</option>
+            <option value="za">Vendor Z–A</option>
+          </select>
+        </label>
+      </div>
+      <div class="selection-bar" id="selection-bar"></div>
+    </div>
+    <div class="inbox" id="inbox" role="list" aria-labelledby="inbox-heading"></div>
+  </section>
+
+  <section class="column cats-col" aria-labelledby="cats-heading">
+    <div class="col-head">
+      <div class="col-title">
+        <h2 id="cats-heading">Categories</h2>
+        <span class="col-count" id="cats-count"></span>
+        <button type="button" class="btn btn-small edit-cats" id="edit-cats" aria-pressed="false" hidden>Edit Categories</button>
+      </div>
+    </div>
+    <div class="cat-scroll">
+      <div class="cat-grid" id="cat-grid"></div>
+      <div class="suggestions" id="suggestions" hidden></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<main class="report-page" id="page-report" hidden>
+  <div id="report-root"></div>
+</main>
+
+<details class="data-panel" id="data-panel">
+  <summary>Data Saved in This Browser</summary>
+  <div class="data-body">
+    <p class="lede">Everything you add stays in this browser on this computer. A backup file is your copy to keep.</p>
+    <div class="counts">
+      <div class="count"><div class="label">Accounts</div><div class="value" id="count-accounts">0</div></div>
+      <div class="count"><div class="label">Transactions</div><div class="value" id="count-transactions">0</div></div>
+      <div class="count"><div class="label">Categories</div><div class="value" id="count-categories">0</div></div>
+      <div class="count"><div class="label">Sorted</div><div class="value" id="count-sorted">0%</div></div>
+    </div>
+
+    <div class="confirm" id="restore-confirm" hidden>
+      <p id="restore-summary"></p>
+      <p>Restoring replaces everything currently saved in this browser.</p>
+      <div class="actions">
+        <button type="button" class="btn btn-danger" id="restore-yes">Replace my data</button>
+        <button type="button" class="btn" id="restore-no">Cancel</button>
+      </div>
+    </div>
+
+    <h3 class="tools-title">Delete Your Data</h3>
+    <p class="lede small">Removes every account, transaction, and category from this browser, for example when you're done using a shared computer. Save a backup first if you might want them later.</p>
+    <div class="tools">
+      <button type="button" class="btn" id="demo-btn" hidden>Load demo data</button>
+      <button type="button" class="btn" id="erase-btn">Delete all data from this browser</button>
+    </div>
+    <div class="confirm" id="erase-confirm" hidden>
+      <p>Delete every account, transaction, and category saved in this browser? This can't be undone unless you have a backup.</p>
+      <div class="actions">
+        <button type="button" class="btn btn-danger" id="erase-yes">Delete everything</button>
+        <button type="button" class="btn" id="erase-no">Cancel</button>
+      </div>
+    </div>
+  </div>
+</details>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
