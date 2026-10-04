@@ -18,8 +18,18 @@ export const STARTER_CATEGORIES = [
   ["Retirement", "saving"], ["Card Payments and Transfers", "excluded"],
 ].map(([name, type, frequency = "regular"]) => ({ name, type, frequency }));
 
-export function sortedCategories(store) {
-  return store.list("categories").sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+// The order categories appear in everywhere (the grid, Move to, the Report, the
+// Excel file): the person's own arrangement, or A to Z. Editing always uses their own.
+export const CATEGORY_ORDERS = ["mine", "az"];
+const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base", numeric: true });
+
+export function categoryOrder(store) {
+  return store.getSetting("categoryOrder", "mine") === "az" ? "az" : "mine";
+}
+
+export function sortedCategories(store, mode = categoryOrder(store)) {
+  const cats = store.list("categories").sort((a, b) => a.order - b.order || byName(a, b));
+  return mode === "az" ? cats.sort(byName) : cats;
 }
 
 export function nameTaken(store, name, exceptId = null) {

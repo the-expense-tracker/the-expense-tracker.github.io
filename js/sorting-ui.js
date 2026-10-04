@@ -7,7 +7,7 @@ import { h, add, formatDate, plural, byFocusKey, breakAfterSlash } from "./dom.j
 import { CATEGORY_TYPES, FREQUENCIES, MONTHS, formatCents, toCents, monthKeyOf, vendorDisplayName, ValidationError } from "./model.js";
 import { buildHintContext, hintFor } from "./hints.js";
 import { renameVendor } from "./importer.js";
-import { sortedCategories, createCategory, remainingSuggestions, categoryCounts } from "./categories.js";
+import { sortedCategories, categoryOrder, createCategory, remainingSuggestions, categoryCounts } from "./categories.js";
 import {
   parseItemId, assignItems, splitTransaction, undoSplit, setCountsToward, countsTowardOptions,
   updateCategory, reorderCategories, deleteCategory, countInCategoryAllYears,
@@ -37,6 +37,11 @@ export function createSortingUI({ store, toast, goTo }) {
   const searchEl = $("inbox-search");
   const sortEl = $("inbox-sort");
   const editBtn = $("edit-cats");
+  const orderSwitch = $("order-switch");
+  orderSwitch.addEventListener("click", (e) => {
+    const btn = elementOf(e.target)?.closest("[data-order]");
+    if (btn && btn.dataset.order !== categoryOrder(store)) store.setSetting("categoryOrder", btn.dataset.order);
+  });
 
   const state = {
     year: null,
@@ -405,8 +410,11 @@ export function createSortingUI({ store, toast, goTo }) {
       h("div", {
         class: "bar-main", role: "button", tabindex: "0", "aria-pressed": selected ? "true" : "false", "data-focus-key": `${scope}-bar-${item.id}`,
         title: moved ? `Posted ${formatDate(t.postedDate)}; counts toward ${monthName(item.month)}` : monthName(item.month),
-        onclick: () => toggleSelect(item.id, scope),
-        onkeydown: (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleSelect(item.id, scope); } },
+        onmousedown: (e) => { if (e.shiftKey) e.preventDefault(); }, // no text highlighting on shift-click
+        onclick: (e) => (e.shiftKey ? selectRange(item.id, scope) : toggleSelect(item.id, scope)),
+        onkeydown: (e) => {
+          if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (e.shiftKey) selectRange(item.id, scope); else toggleSelect(item.id, scope); }
+        },
       },
         h("span", { class: `month-tab${moved ? " moved" : ""}` }, selected ? h("span", { class: "tick", "aria-hidden": "true" }, "✓") : null, info.abbr),
         h("span", { class: "bar-name" }, item.name),
@@ -444,7 +452,22 @@ export function createSortingUI({ store, toast, goTo }) {
     sr.textContent = sr.textContent.replace(/, selected$/, "") + (selected ? ", selected" : "");
   }
 
+  // Shift-click: select everything between the last clicked transaction and this one.
+  const anchors = { inbox: null, panel: null };
+  function selectRange(id, scope) {
+    const list = scope === "inbox" ? lastShown : panelShown;
+    const from = list.findIndex((i) => i.id === anchors[scope]);
+    const to = list.findIndex((i) => i.id === id);
+    if (from < 0 || to < 0) { toggleSelect(id, scope); return; }
+    const sel = scopes[scope].selected;
+    for (const item of list.slice(Math.min(from, to), Math.max(from, to) + 1)) sel.add(item.id);
+    anchors[scope] = id;
+    if (scope === "inbox") renderInbox(); else renderPanelList();
+    byFocusKey(scope === "inbox" ? inboxEl : gridEl, `${scope}-bar-${id}`)?.focus();
+  }
+
   function toggleSelect(id, scope) {
+    anchors[scope] = id;
     const sel = scopes[scope].selected;
     const selected = !sel.has(id);
     if (selected) sel.add(id); else sel.delete(id);
@@ -486,7 +509,8 @@ export function createSortingUI({ store, toast, goTo }) {
       add(box,
         h("span", { class: "sel-count" }, `${n} selected`),
         h("span", { class: "menu-anchor" }, moveBtn),
-        h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: () => { state.selected.clear(); renderInbox(); } }, "Clear"));
+        h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: () => { state.selected.clear(); renderInbox(); } }, "Clear"),
+        n === 1 && lastShown.length > 1 ? h("span", { class: "muted small sel-tip" }, "Tip: Shift-click another to select everything between") : null);
     }
     if (lastShown.length && lastShown.some((i) => !state.selected.has(i.id))) {
       add(box, h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: () => {
@@ -736,7 +760,7 @@ export function createSortingUI({ store, toast, goTo }) {
   }
 
   async function moveCategory(id, delta) {
-    const ids = sortedCategories(store).map((c) => c.id);
+    const ids = sortedCategories(store, "mine").map((c) => c.id);
     const i = ids.indexOf(id);
     const j = i + delta;
     if (j < 0 || j >= ids.length) return;
@@ -809,7 +833,7 @@ export function createSortingUI({ store, toast, goTo }) {
       const after = box.classList.contains("drop-after");
       const moving = drag.id;
       endDrag();
-      const ids = sortedCategories(store).map((x) => x.id).filter((id) => id !== moving);
+      const ids = sortedCategories(store, "mine").map((x) => x.id).filter((id) => id !== moving);
       ids.splice(ids.indexOf(c.id) + (after ? 1 : 0), 0, moving);
       await reorderCategories(store, ids);
     });
@@ -833,8 +857,11 @@ export function createSortingUI({ store, toast, goTo }) {
 
   function renderCategories() {
     closeTypeInfo();
-    const cats = sortedCategories(store);
+    // Rearranging only makes sense in the person's own order, so editing shows that.
+    const cats = sortedCategories(store, state.editing ? "mine" : categoryOrder(store));
     if (state.openCat && !store.get("categories", state.openCat)) state.openCat = null;
+    orderSwitch.hidden = state.editing || cats.length < 2;
+    for (const b of orderSwitch.querySelectorAll("[data-order]")) b.setAttribute("aria-pressed", b.dataset.order === categoryOrder(store) ? "true" : "false");
     const counts = categoryCounts(store, state.year || "all");
     $("cats-count").textContent = cats.length ? cats.length.toLocaleString("en-US") : "";
     gridEl.classList.toggle("dense", cats.length > 16);

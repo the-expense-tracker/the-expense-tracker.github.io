@@ -544,7 +544,7 @@ export function createReportUI({ store, toast, goTo }) {
   });
 
   // Settings the report reads; others (like the last-backup time) don't change it.
-  const REPORT_SETTINGS = new Set(["dismissedFlags", "frequencyAsked"]);
+  const REPORT_SETTINGS = new Set(["dismissedFlags", "frequencyAsked", "categoryOrder"]);
   store.addEventListener("change", (e) => {
     const { stores, keys } = e.detail || {};
     const onlySettings = stores?.length === 1 && stores[0] === "settings" && keys?.settings;

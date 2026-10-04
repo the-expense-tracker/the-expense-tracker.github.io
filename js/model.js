@@ -271,6 +271,7 @@ const SETTING_CHECKS = {
   lastBackupAt: (v) => v === null || isIsoTime(v),
   backupNudgeSnoozedUntil: (v) => v === null || isIsoTime(v),
   hideSuggestions: (v) => typeof v === "boolean",
+  categoryOrder: (v) => v === "mine" || v === "az",
   defaultCategoriesAdded: (v) => typeof v === "boolean",
   previewDemo: (v) => typeof v === "string",
   frequencyAsked: (v) => Array.isArray(v) && v.length <= 10000 && v.every(isId),
