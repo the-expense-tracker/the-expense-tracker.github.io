@@ -1,0 +1,33 @@
+/* The tour page: same fonts and colors as the app. */
+@font-face { font-family: "Hanken Grotesk"; src: url("../fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Hanken Grotesk"; src: url("../fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Hanken Grotesk"; src: url("../fonts/hanken-grotesk-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+
+:root {
+  --olive: #4A4D37; --olive-deep: #2E3023; --ochre: #B88435; --rust: #9E5424; --sand: #CFAD78;
+  --paper: #F6F2E8; --card: #FFFDF7; --ink: #262819; --muted: #75765E; --line: #E0D9C5;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Hanken Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif; line-height: 1.5; }
+.tour-head { background: var(--olive); padding: 14px 24px; }
+.tour-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--card); text-decoration: none; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
+.tour-name span { color: var(--sand); }
+.tour-ribbon { display: flex; height: 5px; }
+.tour-ribbon span { flex: 48; background: var(--ochre); }
+.tour-ribbon span:nth-child(2) { flex: 24; background: var(--rust); }
+.tour-ribbon span:nth-child(3) { flex: 28; background: var(--sand); }
+.tour-main { max-width: 1080px; margin: 0 auto; padding: 32px 24px 56px; }
+h1 { font-weight: 800; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.02em; color: var(--olive-deep); margin: 0 0 6px; }
+.lede { color: var(--muted); font-size: 17px; margin: 0 0 22px; }
+video { display: block; width: 100%; height: auto; background: var(--olive-deep); border-radius: 12px; box-shadow: 0 10px 30px rgba(38, 40, 25, 0.18); }
+.note { color: var(--muted); font-size: 14px; margin: 14px 2px 18px; }
+.steps { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; }
+.steps summary { cursor: pointer; font-weight: 600; }
+.steps ol { margin: 10px 0 4px; padding-left: 22px; }
+.steps li { margin: 4px 0; }
+.cta { margin-top: 26px; }
+.btn-primary { display: inline-block; background: var(--olive); color: var(--card); text-decoration: none; font-weight: 600; padding: 11px 20px; border-radius: 10px; }
+.btn-primary:hover { background: var(--olive-deep); }
+a:focus-visible, summary:focus-visible, video:focus-visible { outline: 3px solid var(--ochre); outline-offset: 3px; }
+@media (max-width: 600px) { .tour-head { padding-inline: 16px; } .tour-main { padding: 22px 16px 40px; } }

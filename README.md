@@ -48,6 +48,7 @@ demo data) into `site/`; that folder's contents are what gets published.
 | Path | What it holds |
 | --- | --- |
 | `index.html` | The page and its network lock |
+| `tour.html`, `css/tour.css`, `media/` | The 2-minute tour video and its page (no scripts; it may only load its own files) |
 | `css/app.css` | Styles, built on the Marigold palette |
 | `js/app.js` | Start-up and the page shell |
 | `js/model.js` | Record shapes, validation, money and date helpers |
@@ -76,6 +77,7 @@ demo data) into `site/`; that folder's contents are what gets published.
 | `fonts/` | Hanken Grotesk, with its license |
 | `tests/` | Browser tests (`python3 tests/stage1_test.py`; stages 2 to 6 need `CHECKING_CSV` and `CARD_CSV` pointing at real exports, which are never stored here). `tests/fixtures/` holds invented files in other banks' formats. `node tests/report_math_test.mjs` checks the report's arithmetic on edge cases. |
 | `tools/build-preview.mjs` | Builds a one-file preview for Claude's preview window |
+| `tools/tour/` | Re-records the tour video from the demo files: `record.py` drives the published build, `cards.py` draws the captions, `retime.py` speeds up chosen stretches, `narrate.py` voices `script.json` (pronunciation fixes in `fixes.json`), `sync.py` fits the recording to the narration, `encode_vo.sh` mixes in the music ("Disco Sunday", Audio Library Plus) and assembles `media/tour.mp4` (paths inside point at a scratch folder) |
 
 ## Publishing
 

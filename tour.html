@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Like the app, this page loads only its own files and contacts no other server. It may also play the tour video. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; media-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tour · The Expense Tracker</title>
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/tour.css">
+</head>
+<body>
+<header class="tour-head">
+  <a class="tour-brand" href="./"><img src="img/icon.svg" width="30" height="30" alt=""><span class="tour-name">The Expense <span>Tracker</span></span></a>
+</header>
+<div class="tour-ribbon" aria-hidden="true"><span></span><span></span><span></span></div>
+<main class="tour-main">
+  <h1>A 2-minute tour</h1>
+  <p class="lede">How to add your bank files, sort your transactions, read the Report, and save a backup.</p>
+  <video controls preload="metadata" playsinline poster="media/tour-poster.jpg" width="1920" height="1080">
+    <source src="media/tour.mp4" type="video/mp4">
+    Your browser can't play this video. <a href="media/tour.mp4">Download it</a> instead.
+  </video>
+  <p class="note">The video uses invented demo data. It plays from this site, just like the app, so nothing about you is sent anywhere.<br>Music: “Disco Sunday” by Audio Library Beats (Audio Library Plus).</p>
+  <details class="steps">
+    <summary>Read the transcript</summary>
+    <ol>
+        <li>Welcome to The Expense Tracker. Everything you do here stays in your browser. The network is locked, so your financial data is never sent anywhere.</li>
+        <li>To get started, download CSV files from your bank and credit card websites.</li>
+        <li>Choose a file, and the app reads it right here in your browser and shows you a preview. Give the account a name, and add it.</li>
+        <li>Add your other accounts the same way.</li>
+        <li>When you pay a card from your checking account, the app matches up the two sides for you.</li>
+        <li>Next, set up your categories. You can add suggestions with one click,</li>
+        <li>or create your own.</li>
+        <li>Every category has a type. Click the i button to see what each one means.</li>
+        <li>Income is money you earn. Charitable giving is donations and tithes.</li>
+        <li>Outbound savings is money you move out of your regular cash flow ecosystem, into retirement or long-term savings accounts.</li>
+        <li>Spending is your everyday expenses. Sort refunds here too, so they offset what you spent.</li>
+        <li>Reimbursable is for costs that someone pays you back for. And Not counted is for card payments and transfers between your own accounts, so they don&#x27;t get counted twice as spending.</li>
+        <li>Pick the type from the dropdown, then add the category.</li>
+        <li>Now for the sorting. Just drag a transaction into its category.</li>
+        <li>To move a bunch at once, search for them, select them all, and move them together.</li>
+        <li>You can also click one, then shift-click another to select everything in between.</li>
+        <li>Click any category to see what&#x27;s inside.</li>
+        <li>And switch to A to Z when you want to find a category quickly.</li>
+        <li>Keep going until everything is sorted. Then open your Report.</li>
+        <li>The Report shows every month, with totals and monthly averages.</li>
+        <li>The Snapshot sums up your income, giving, savings, spending, and net.</li>
+        <li>Click any amount to see the transactions behind it.</li>
+        <li>If a cost only shows up now and then, the app asks about it, so your averages stay realistic.</li>
+        <li>Your progress saves automatically in this browser. Just bookmark the site, and come back in the same browser each time. For extra peace of mind, you can also save a backup. It&#x27;s an Excel file of your report that can restore everything.</li>
+        <li>You&#x27;re ready to go. Happy sorting!</li>
+    </ol>
+  </details>
+  <p class="cta"><a class="btn-primary" href="./">Open The Expense Tracker</a></p>
+</main>
+</body>
+</html>

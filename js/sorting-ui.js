@@ -550,6 +550,7 @@ export function createSortingUI({ store, toast, goTo }) {
     if (!store.count("transactions")) {
       frag.append(h("div", { class: "empty" },
         h("p", {}, "Add a bank file above and its transactions will appear here, ready to sort."),
+        h("p", { class: "muted small" }, "New here? ", h("a", { class: "zone-link", href: "tour.html", target: "_blank", rel: "noopener noreferrer" }, "Watch the 2-minute tour")),
         window.__ET_PREVIEW__ ? h("button", { type: "button", class: "btn btn-primary empty-action", onclick: () => document.getElementById("demo-btn").click() }, "Load demo data") : null));
     } else if (!all.length) {
       // All sorted: point to the payoff, the Report.

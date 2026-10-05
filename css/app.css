@@ -123,6 +123,13 @@ button, input, select { font: inherit; color: inherit; }
   color: rgba(255, 253, 247, 0.66); white-space: nowrap;
 }
 
+.tour-link {
+  margin-left: 18px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+  color: var(--sand); text-decoration: none; white-space: nowrap; border: 1px solid rgba(207, 173, 120, 0.45); border-radius: 999px; padding: 4px 11px 4px 9px;
+}
+.tour-link:hover { color: var(--card); border-color: var(--sand); }
+.tour-link:focus-visible { outline: 2px solid var(--sand); outline-offset: 2px; }
+
 /* Buttons */
 .btn {
   border: 1px solid var(--line);
